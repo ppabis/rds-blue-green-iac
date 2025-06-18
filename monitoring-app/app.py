@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from os import getenv
 import mysql.connector
+import psycopg2
 
 db_host = getenv("DB_HOST", "localhost")
 db_port = int(getenv("DB_PORT", 3306))
@@ -18,6 +19,7 @@ async def root():
 
 @app.get("/info")
 async def info():
+    mysql_version = ""
     try:
         connection = mysql.connector.connect(
             host=db_host,
@@ -32,6 +34,26 @@ async def info():
             version = cursor.fetchone()
             cursor.close()
             connection.close()
-            return {"mysql_version": version[0]}
+            mysql_version = version[0]
     except mysql.connector.Error as err:
-        return {"error": str(err)}
+        pass
+    pg_version = ""
+    try:
+        connection = psycopg2.connect(
+            host=getenv("PG_HOST", "localhost"),
+            port=int(getenv("PG_PORT", 5432)),
+            user=getenv("PG_USER", "postgres"),
+            password=getenv("PG_PASSWORD", "password"),
+            database=getenv("PG_DB", "postgres")
+        )
+        if connection:
+            cursor = connection.cursor()
+            cursor.execute("SELECT version()")
+            version = cursor.fetchone()
+            cursor.close()
+            connection.close()
+            pg_version = version[0]
+    except psycopg2.Error as err:
+        pass
+
+    return {"mysql": mysql_version, "pg": pg_version}
