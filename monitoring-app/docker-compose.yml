@@ -31,6 +31,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root_password
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
 
   postgres:
     image: postgres:13
@@ -40,6 +41,7 @@ services:
       - POSTGRES_PASSWORD=app_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./pgsql-init.sql:/docker-entrypoint-initdb.d/pgsql-init.sql
 
 volumes:
   mysql_data:
