@@ -14,28 +14,30 @@ def limit_arrays(max_size=2048):
     if len(MYSQL_READ_STATS) > max_size:
         MYSQL_READ_STATS[:] = MYSQL_READ_STATS[-max_size:]
 
-def check_read_write(timestamp, cursor):
+def check_read_write(timestamp, cursor, connection):
     read_result = 0
     write_result = 0
     try:
         cursor.execute("SELECT * FROM test_table ORDER BY timestamp DESC LIMIT 5")
         result = cursor.fetchone()
         read_result = 1 if result else 0
+        cursor.fetchall()
     except mysql.connector.Error as err:
         read_result = 0
     try:
-        cursor.execute("INSERT INTO test_table (timestamp) VALUES (%s)", (timestamp,))
-        cursor.connection.commit()
-        cursor.execute("SELECT * FROM test_table WHERE timestamp = %s", (timestamp,))
+        cursor.execute("INSERT INTO test_table (timestamp) VALUES (%s)", (timestamp.replace(microsecond=0),))
+        connection.commit()
+        cursor.execute("SELECT timestamp FROM test_table ORDER BY timestamp DESC LIMIT 1")
         result = cursor.fetchone()
-        write_result = 1 if result else 0
+        write_result = 1 if result and result[0] == timestamp.replace(microsecond=0) else 0
+        cursor.fetchall()
     except mysql.connector.Error as err:
         write_result = 0
     return read_result, write_result
 
 
 def check_mysql(host, port, user, password, database):
-    timestamp = datetime.now().timestamp()
+    timestamp = datetime.now()
     read_result = 0
     write_result = 0
     connection_result = 0
@@ -44,7 +46,7 @@ def check_mysql(host, port, user, password, database):
         if connection and connection.is_connected():
             connection_result = 1
             with connection.cursor() as cursor:
-                read_result, write_result = check_read_write(timestamp, cursor)
+                read_result, write_result = check_read_write(timestamp, cursor, connection)
     except mysql.connector.Error as err:
         pass
     except Exception as e:
@@ -54,9 +56,9 @@ def check_mysql(host, port, user, password, database):
     finally:
         if 'connection' in locals() and connection and connection.is_connected():
             connection.close()
-    MYSQL_CONNECTION_STATS.append( (timestamp, connection_result) )
-    MYSQL_WRITE_STATS.append( (timestamp, write_result) )
-    MYSQL_READ_STATS.append( (timestamp, read_result) )
+    MYSQL_CONNECTION_STATS.append( (datetime.now().timestamp(), connection_result) )
+    MYSQL_WRITE_STATS.append( (datetime.now().timestamp(), write_result) )
+    MYSQL_READ_STATS.append( (datetime.now().timestamp(), read_result) )
     limit_arrays()
 
 def get_stats():
