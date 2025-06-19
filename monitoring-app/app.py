@@ -18,20 +18,31 @@ pg_user=getenv("PG_USER", "postgres")
 pg_password=getenv("PG_PASSWORD", "password")
 pg_database=getenv("PG_DB", "postgres")
 
+mode = getenv("MONITOR_MODE", "mysql")
+
 monitor_thread = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global monitor_thread
-    # Startup: Start MySQL monitoring
-    pg_args = {
+    if mode == "mysql":
+        mysql_args = {
+            "host": db_host,
+            "port": db_port,
+            "user": db_user,
+            "password": db_password,
+            "database": db_name
+        }
+        monitor_thread = Monitor(mode="mysql", args=mysql_args)
+    elif mode == "postgresql":
+        pg_args = {
         "host": pg_host,
         "port": pg_port,
         "user": pg_user,
         "password": pg_password,
         "database": pg_database
-    }
-    monitor_thread = Monitor(mode="postgresql", args=pg_args)
+        }
+        monitor_thread = Monitor(mode="postgresql", args=pg_args)
     monitor_thread.start()
     
     yield
@@ -49,4 +60,7 @@ async def root():
 
 @app.get("/stats")
 async def stats():
-    return get_postgresql_stats()
+    if mode == "mysql":
+        return get_mysql_stats()
+    elif mode == "postgresql":
+        return get_postgresql_stats()

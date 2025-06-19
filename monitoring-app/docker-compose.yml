@@ -21,6 +21,7 @@ services:
       - PG_USER=app_user
       - PG_PASSWORD=app_password
       - PG_DB=app_db
+      - MONITOR_MODE=postgresql
 
   db:
     image: mysql:8.0
