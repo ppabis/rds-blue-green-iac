@@ -1,5 +1,6 @@
 import threading, time, signal, sys
 from check_mysql import check_mysql
+from check_postgresql import check_postgresql
 
 class Monitor:
     def __init__(self, mode="mysql", args=None):
@@ -16,6 +17,8 @@ class Monitor:
                 time.sleep(1)
                 if self.mode == "mysql":
                     check_mysql(**self.args)
+                elif self.mode == "postgresql":
+                    check_postgresql(**self.args)
             except Exception as e:
                 print(f"Error in monitoring thread: {e}")
                 import traceback

@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from os import getenv
-from check_mysql import get_stats
+from check_mysql import get_stats as get_mysql_stats
+from check_postgresql import get_stats as get_postgresql_stats
 from monitor import Monitor
 from contextlib import asynccontextmanager
 
@@ -23,14 +24,14 @@ monitor_thread = None
 async def lifespan(app: FastAPI):
     global monitor_thread
     # Startup: Start MySQL monitoring
-    mysql_args = {
-        "host": db_host,
-        "port": db_port,
-        "user": db_user,
-        "password": db_password,
-        "database": db_name
+    pg_args = {
+        "host": pg_host,
+        "port": pg_port,
+        "user": pg_user,
+        "password": pg_password,
+        "database": pg_database
     }
-    monitor_thread = Monitor(mode="mysql", args=mysql_args)
+    monitor_thread = Monitor(mode="postgresql", args=pg_args)
     monitor_thread.start()
     
     yield
@@ -48,4 +49,4 @@ async def root():
 
 @app.get("/stats")
 async def stats():
-    return get_stats()
+    return get_postgresql_stats()
