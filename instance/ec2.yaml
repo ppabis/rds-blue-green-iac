@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'EC2 Instance with SSM Session Manager access and package installation'
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID where the EC2 instance will be launched
+  
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet ID where the EC2 instance will be launched
+
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-arm64
+    Description: Latest Amazon Linux 2023 ARM64 AMI ID from SSM Parameter Store
+
+Resources:
+  # IAM Role for SSM Session Manager
+  SSMSessionManagerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${AWS::StackName}-SSMSessionManagerRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  # IAM Instance Profile
+  SSMInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: !Sub '${AWS::StackName}-SSMInstanceProfile'
+      Roles:
+        - !Ref SSMSessionManagerRole
+
+  # Security Group with full egress access
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub '${AWS::StackName}-EC2SecurityGroup'
+      GroupDescription: Security group for EC2 instance with full egress access
+      VpcId: !Ref VpcId
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+          Description: Full egress access
+
+  # EC2 Instance
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: t4g.nano
+      IamInstanceProfile: !Ref SSMInstanceProfile
+      SecurityGroupIds:
+        - !Ref EC2SecurityGroup
+      SubnetId: !Ref SubnetId
+      AssociatePublicIpAddress: true
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          dnf update -y
+          dnf install -y mariadb1011-client-utils postgresql17 docker
+          systemctl enable --now docker
+          systemctl enable --now amazon-ssm-agent
+
+Outputs:
+  InstanceId:
+    Description: ID of the EC2 instance
+    Value: !Ref EC2Instance
+    Export:
+      Name: !Sub '${AWS::StackName}-InstanceId'
+  
+  PublicIP:
+    Description: Public IP address of the EC2 instance
+    Value: !GetAtt EC2Instance.PublicIp
+    Export:
+      Name: !Sub '${AWS::StackName}-PublicIP'
+  
+  PublicDNS:
+    Description: Public DNS name of the EC2 instance
+    Value: !GetAtt EC2Instance.PublicDnsName
+    Export:
+      Name: !Sub '${AWS::StackName}-PublicDNS'
+  
+  SecurityGroupId:
+    Description: ID of the security group
+    Value: !Ref EC2SecurityGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-SecurityGroupId'
+  
+  IAMRoleArn:
+    Description: ARN of the IAM role for SSM Session Manager
+    Value: !GetAtt SSMSessionManagerRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-IAMRoleArn'
