@@ -34,8 +34,7 @@ Resources:
             Action:
               - secretsmanager:GetSecretValue
               - secretsmanager:DescribeSecret
-            Resource: !ImportValue 
-              'Fn::Sub': '${RdsStackName}-MasterUserSecretArn'
+            Resource: !ImportValue !Sub '${RdsStackName}-MasterUserSecretArn'
 
   # IAM Role for SSM Session Manager
   SSMSessionManagerRole:
