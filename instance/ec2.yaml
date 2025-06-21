@@ -15,7 +15,28 @@ Parameters:
     Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-arm64
     Description: Latest Amazon Linux 2023 ARM64 AMI ID from SSM Parameter Store
 
+  RdsStackName:
+    Type: String
+    Description: Name of the RDS CloudFormation stack to import the secret ARN from
+
 Resources:
+  # Custom Policy for Secrets Manager access
+  SecretsManagerPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub '${AWS::StackName}-SecretsManagerPolicy'
+      Roles:
+        - !Ref SSMSessionManagerRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+              - secretsmanager:DescribeSecret
+            Resource: !ImportValue 
+              'Fn::Sub': '${RdsStackName}-MasterUserSecretArn'
+
   # IAM Role for SSM Session Manager
   SSMSessionManagerRole:
     Type: AWS::IAM::Role
