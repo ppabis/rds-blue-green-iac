@@ -1,0 +1,2 @@
+# Required variable - you must provide the VPC ID
+vpc_id = "vpc-12345678" 
