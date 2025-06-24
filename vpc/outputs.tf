@@ -18,3 +18,14 @@ output "mysql_sg_id" {
   description = "The ID of the MySQL security group"
   value       = aws_security_group.mysql.id
 }
+
+# EC2 Instance Outputs
+output "instance_id" {
+  description = "ID of the EC2 instance"
+  value       = aws_instance.experiment_instance.id
+}
+
+output "public_dns" {
+  description = "Public DNS of the EC2 instance"
+  value       = aws_instance.experiment_instance.public_dns
+}
