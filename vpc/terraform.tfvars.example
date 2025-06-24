@@ -1,0 +1,5 @@
+# VPC Configuration
+vpc_cidr = "10.199.199.0/24"
+
+# AWS Region
+region = "eu-west-2" 
