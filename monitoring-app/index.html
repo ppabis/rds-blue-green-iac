@@ -9,7 +9,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             background-color: #f5f5f5;
         }
         
@@ -21,19 +21,19 @@
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
         
         .charts-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 30px;
+            gap: 10px;
         }
         
         .chart-container {
             background: white;
             border-radius: 10px;
-            padding: 20px;
+            padding: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
@@ -41,12 +41,12 @@
             font-size: 18px;
             font-weight: 600;
             color: #333;
-            margin-bottom: 15px;
+            margin-bottom: 4px;
             text-align: center;
         }
         
         canvas {
-            max-height: 300px;
+            max-height: 180px;
         }
         
         /* Remove responsive breakpoints to keep single column layout */
@@ -129,8 +129,8 @@
                                 display: true,
                                 text: 'Value'
                             },
-                            min: -1,
-                            max: 2,
+                            min: -0.5,
+                            max: 1.5,
                             ticks: {
                                 stepSize: 0.5
                             }
@@ -138,8 +138,7 @@
                     },
                     plugins: {
                         legend: {
-                            display: true,
-                            position: 'top'
+                            display: false
                         }
                     },
                     interaction: {
@@ -154,8 +153,8 @@
 
         // Function to update chart data
         function updateChart(chart, data) {
-            // Truncate data to max 256 points from the end
-            const maxPoints = 256;
+            // Truncate data to max 1024 points from the end
+            const maxPoints = 1024;
             const truncatedData = data.length > maxPoints ? data.slice(-maxPoints) : data;
             
             chart.data.labels = truncatedData.map(point => formatTime(point[0]));
