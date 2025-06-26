@@ -181,3 +181,70 @@ COPY *.py *.html .
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
+
+Testing the application
+-------------------
+
+Before we deploy this to AWS, we can very easily test it locally. To do this, I
+will use Docker Compose to run the application and a MySQL database. I will init
+the database with a script that will create the `test_table`. To also allow the 
+read test to pass, I will create a single record in the table. When the SQL
+script has execution permissions on Linux/Mac and you mount it into
+`/docker-entrypoint-initdb.d/` it will be executed on the database container
+startup. Save this to `mysql-init.sql` and do `chmod +x mysql_init.sql` on it:
+
+```sql
+USE app_db;
+
+CREATE TABLE IF NOT EXISTS test_table (timestamp TIMESTAMP);
+
+INSERT INTO test_table (timestamp)
+SELECT NOW()
+WHERE NOT EXISTS (SELECT 1 FROM test_table);
+```
+
+Now we can create a `docker-compose.yml` file to run the application and perform
+some tests. I will build the application image from the `Dockerfile` and run it
+on port `18000` of your system.
+
+```yaml
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "18000:8000"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=app_user
+      - DB_PASSWORD=app_password
+      - DB_NAME=app_db
+
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=app_db
+      - MYSQL_USER=app_user
+      - MYSQL_PASSWORD=app_password
+      - MYSQL_ROOT_PASSWORD=root_password
+    volumes:
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
+```
+
+When you reach out to `http://localhost:18000`, you should see the application
+running and showing the graphs. The dips in the graphs are me setting the
+database to read-only mode and then back to read-write and stopping it entirely
+and starting again.
+
+![Testing read-only and stopping the service](./.docs/mysql-testing-locally.png)
+
+```bash
+docker exec -it monitoring-app-db-1 mysql -u root -proot_password -e 'SET GLOBAL read_only = 1;'
+docker exec -it monitoring-app-db-1 mysql -u root -proot_password -e 'SET GLOBAL read_only = 0;'
+docker stop monitoring-app-db-1
+docker start monitoring-app-db-1
+```
