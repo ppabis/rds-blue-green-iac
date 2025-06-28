@@ -1,2 +1,3 @@
 # Required variable - you must provide the VPC ID
-vpc_id = "vpc-12345678" 
+subnet_ids         = ["subnet-xxxxxxxx", "subnet-yyyyyyyy"]
+security_group_id  = "sg-xxxxxxxx"

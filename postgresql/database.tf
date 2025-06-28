@@ -12,7 +12,7 @@ resource "aws_db_instance" "postgresql" {
   # Database configuration
   db_name        = "postgresql_database"
   engine         = "postgres"
-  engine_version = "13.12" # PostgreSQL 13.x as requested
+  engine_version = "13.21" # PostgreSQL 13.x as requested
 
   # Instance configuration
   instance_class    = "db.t4g.medium"
@@ -34,4 +34,5 @@ resource "aws_db_instance" "postgresql" {
   backup_retention_period    = 1
   deletion_protection        = false
   auto_minor_version_upgrade = false
+  skip_final_snapshot        = true
 }
