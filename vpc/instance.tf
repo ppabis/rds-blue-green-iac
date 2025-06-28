@@ -19,7 +19,6 @@ resource "aws_instance" "experiment_instance" {
     systemctl enable --now docker
     EOF
 
-  tags = {
-    Name = "experiment-instance"
-  }
+  tags = { Name = "experiment-instance" }
+  lifecycle { ignore_changes = [ ami ] }
 }
