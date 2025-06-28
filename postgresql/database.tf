@@ -1,3 +1,11 @@
+data "aws_secretsmanager_secret" "root_password" {
+  name = "rds-root-password"
+}
+
+data "aws_secretsmanager_secret_version" "root_password" {
+  secret_id = data.aws_secretsmanager_secret.root_password.id
+}
+
 # Subnet Group for RDS
 resource "aws_db_subnet_group" "rds" {
   name        = "postgresql-database-subnet-group"
@@ -28,7 +36,7 @@ resource "aws_db_instance" "postgresql" {
 
   # Authentication
   username                    = "root"
-  manage_master_user_password = true
+  password                    = jsondecode(data.aws_secretsmanager_secret_version.root_password.secret_string).password
 
   # Backup and maintenance
   backup_retention_period    = 1
