@@ -28,10 +28,10 @@ Resources:
       MultiAZ: false
       DBSubnetGroupName: !Ref RDSSubnetGroup
       PubliclyAccessible: false
-      VpcSecurityGroupIds:
+      VPCSecurityGroups:
         - !Ref SecurityGroupId
       MasterUsername: root
-      ManageMasterUserPassword: true
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${AWS::StackName}-password:SecretString:password}}'
       DeletionProtection: false
 
   # Subnet Group for RDS
@@ -44,6 +44,17 @@ Resources:
         - Key: Name
           Value: !Sub 'mysql-database-subnet-group'
 
+  RootPassword:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub '${AWS::StackName}-password'
+      Description: Root password for RDS MySQL database
+      GenerateSecretString:
+        PasswordLength: 32
+        IncludeSymbols: true
+        ExcludeCharacters: "!@#$%^&*()_+-=[]{}|;:,.<>?"
+        SecretStringTemplate: '{"username": "root"}'
+
 Outputs:
   DBEndpoint:
     Description: RDS Instance Endpoint
@@ -53,6 +64,6 @@ Outputs:
 
   MasterUserSecretArn:
     Description: ARN of the master user secret in Secrets Manager
-    Value: !GetAtt RDSInstance.MasterUserSecret.SecretArn
+    Value: !GetAtt RootPassword.SecretArn
     Export:
       Name: !Sub '${AWS::StackName}-MasterUserSecretArn'
