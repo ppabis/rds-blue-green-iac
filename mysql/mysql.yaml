@@ -10,6 +10,10 @@ Parameters:
   SubnetIds:
     Type: List<AWS::EC2::Subnet::Id>
     Description: List of subnet IDs where the RDS instance will be deployed
+  
+  SecretName:
+    Type: String
+    Description: Name of the secret in Secrets Manager
 
 Resources:
   RDSInstance:
@@ -31,7 +35,7 @@ Resources:
       VPCSecurityGroups:
         - !Ref SecurityGroupId
       MasterUsername: root
-      MasterUserPassword: !Sub '{{resolve:secretsmanager:${AWS::StackName}-password:SecretString:password}}'
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${SecretName}:SecretString:password}}'
       DeletionProtection: false
 
   # Subnet Group for RDS
@@ -44,26 +48,9 @@ Resources:
         - Key: Name
           Value: !Sub 'mysql-database-subnet-group'
 
-  RootPassword:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: !Sub '${AWS::StackName}-password'
-      Description: Root password for RDS MySQL database
-      GenerateSecretString:
-        PasswordLength: 32
-        IncludeSymbols: true
-        ExcludeCharacters: "!@#$%^&*()_+-=[]{}|;:,.<>?"
-        SecretStringTemplate: '{"username": "root"}'
-
 Outputs:
   DBEndpoint:
     Description: RDS Instance Endpoint
     Value: !GetAtt RDSInstance.Endpoint.Address
     Export:
       Name: !Sub '${AWS::StackName}-DBEndpoint'
-
-  MasterUserSecretArn:
-    Description: ARN of the master user secret in Secrets Manager
-    Value: !GetAtt RootPassword.SecretArn
-    Export:
-      Name: !Sub '${AWS::StackName}-MasterUserSecretArn'
