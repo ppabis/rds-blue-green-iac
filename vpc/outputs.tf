@@ -29,3 +29,9 @@ output "public_dns" {
   description = "Public DNS of the EC2 instance"
   value       = aws_instance.experiment_instance.public_dns
 }
+
+# Root password for RDS MySQL
+output "root_password_arn" {
+  description = "ARN of the root password for RDS MySQL"
+  value       = aws_secretsmanager_secret_version.root_password.arn
+}
