@@ -3,6 +3,7 @@ resource "aws_security_group" "experiment_instance" {
   name_prefix = "experiment-instance-sg"
   description = "Security group for experiment instances with complete egress access"
   vpc_id      = module.vpc.vpc_id
+  tags        = { Name = "experiment-instance-sg" }
 
   egress {
     from_port   = 0
@@ -11,9 +12,6 @@ resource "aws_security_group" "experiment_instance" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = "experiment-instance-sg"
-  }
 }
 
 # Security Group for PostgreSQL (allows ingress on PostgreSQL port from experiment-instance-sg)
@@ -21,6 +19,7 @@ resource "aws_security_group" "postgresql" {
   name_prefix = "postgresql-sg"
   description = "Security group for PostgreSQL database"
   vpc_id      = module.vpc.vpc_id
+  tags        = { Name = "postgresql-sg" }
 
   ingress {
     from_port       = 5432
@@ -37,9 +36,6 @@ resource "aws_security_group" "postgresql" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = "postgresql-sg"
-  }
 }
 
 # Security Group for MySQL (allows ingress on MySQL port from experiment-instance-sg)
@@ -47,6 +43,7 @@ resource "aws_security_group" "mysql" {
   name_prefix = "mysql-sg"
   description = "Security group for MySQL database"
   vpc_id      = module.vpc.vpc_id
+  tags        = { Name = "mysql-sg" }
 
   ingress {
     from_port       = 3306
@@ -63,7 +60,4 @@ resource "aws_security_group" "mysql" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = "mysql-sg"
-  }
 }
