@@ -20,5 +20,5 @@ resource "aws_instance" "experiment_instance" {
     EOF
 
   tags = { Name = "experiment-instance" }
-  lifecycle { ignore_changes = [ ami ] }
+  lifecycle { ignore_changes = [ami] }
 }
