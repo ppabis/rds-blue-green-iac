@@ -8,4 +8,10 @@ variable "region" {
   description = "AWS region"
   type        = string
   default     = "eu-west-2"
-} 
+}
+
+variable "my_ip" {
+  description = "Subnet for you to access the monitoring app (optional, leave \"\" for no access) otherwise give CIDR like 1.2.3.4/32"
+  type        = string
+  default     = ""
+}

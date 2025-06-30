@@ -5,6 +5,16 @@ resource "aws_security_group" "experiment_instance" {
   vpc_id      = module.vpc.vpc_id
   tags        = { Name = "experiment-instance-sg" }
 
+  dynamic "ingress" {
+    for_each = var.my_ip != "" ? [var.my_ip] : []
+    content {
+      from_port   = 8080
+      to_port     = 8081
+      protocol    = "tcp"
+      cidr_blocks = [ingress.value]
+    }
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
