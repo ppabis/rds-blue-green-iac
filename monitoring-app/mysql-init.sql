@@ -1,6 +1,6 @@
 USE app_db;
 
-CREATE TABLE IF NOT EXISTS test_table (timestamp TIMESTAMP);
+CREATE TABLE IF NOT EXISTS test_table (id INT PRIMARY KEY AUTO_INCREMENT, timestamp TIMESTAMP);
 
 INSERT INTO test_table (timestamp)
 SELECT NOW()
