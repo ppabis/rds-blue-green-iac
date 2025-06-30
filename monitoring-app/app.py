@@ -60,7 +60,10 @@ async def root():
 
 @app.get("/stats")
 async def stats():
+    stats_json = {}
     if mode == "mysql":
-        return get_mysql_stats()
+        stats_json = get_mysql_stats()
     elif mode == "postgresql":
-        return get_postgresql_stats()
+        stats_json = get_postgresql_stats()
+    stats_json['dbtype'] = mode
+    return stats_json
