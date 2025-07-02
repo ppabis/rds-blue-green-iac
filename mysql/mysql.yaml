@@ -54,3 +54,9 @@ Outputs:
     Value: !GetAtt RDSInstance.Endpoint.Address
     Export:
       Name: !Sub '${AWS::StackName}-DBEndpoint'
+
+  DBInstanceArn:
+    Description: RDS Instance ARN
+    Value: !GetAtt RDSInstance.DBInstanceArn
+    Export:
+      Name: !Sub '${AWS::StackName}-DBInstanceArn'
