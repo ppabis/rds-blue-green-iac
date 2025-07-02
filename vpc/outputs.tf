@@ -35,3 +35,8 @@ output "root_password_arn" {
   description = "ARN of the root password for RDS MySQL"
   value       = aws_secretsmanager_secret_version.root_password.arn
 }
+
+output "secret_name" {
+  description = "Name of the RDS root password secret"
+  value       = aws_secretsmanager_secret.root_password.name
+}

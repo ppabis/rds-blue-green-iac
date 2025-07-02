@@ -7,7 +7,7 @@ resource "random_password" "root_password" {
 
 # Create the secret in AWS Secrets Manager
 resource "aws_secretsmanager_secret" "root_password" {
-  name        = "rds-root-password"
+  name        = var.secret_name
   description = "Root password for RDS MySQL database"
 }
 
@@ -18,10 +18,4 @@ resource "aws_secretsmanager_secret_version" "root_password" {
     username = "root"
     password = random_password.root_password.result
   })
-}
-
-# Output the secret ARN for reference
-output "secret_name" {
-  description = "Name of the RDS root password secret"
-  value       = aws_secretsmanager_secret.root_password.name
 }

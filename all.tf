@@ -8,12 +8,13 @@ variable "my_ip" {
 module "vpc" {
   source = "./vpc"
   my_ip  = var.my_ip
+  secret_name = "rds-root-password-20250702"
 }
 
 module "postgresql" {
   source            = "./postgresql"
-  subnet_ids        = module.vpc.subnet_ids
-  security_group_id = module.vpc.security_group_id
+  subnet_ids        = module.vpc.private_subnet_ids
+  security_group_id = module.vpc.postgresql_sg_id
   secret_name       = module.vpc.secret_name
 }
 

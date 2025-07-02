@@ -15,3 +15,9 @@ variable "my_ip" {
   type        = string
   default     = ""
 }
+
+variable "secret_name" {
+  description = "Name of the secret"
+  type        = string
+  default     = "rds-root-password"
+}
