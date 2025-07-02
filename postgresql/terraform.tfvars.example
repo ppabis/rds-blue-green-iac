@@ -1,3 +1,4 @@
 # Required variable - you must provide the VPC ID
 subnet_ids         = ["subnet-xxxxxxxx", "subnet-yyyyyyyy"]
 security_group_id  = "sg-xxxxxxxx"
+secret_name        = "rds-root-password"

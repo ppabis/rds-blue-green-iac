@@ -1,5 +1,5 @@
 data "aws_secretsmanager_secret" "root_password" {
-  name = "rds-root-password"
+  name = var.secret_name
 }
 
 data "aws_secretsmanager_secret_version" "root_password" {
