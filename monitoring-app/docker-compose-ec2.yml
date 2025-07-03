@@ -1,0 +1,28 @@
+services:
+  mysql:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8000"
+    environment:
+      - DB_HOST=mysql-database.abcdefgji.eu-west-2.rds.amazonaws.com
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=${PGPASSWORD}
+      - DB_NAME=my_database
+      - MONITOR_MODE=mysql
+
+  postgresql:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8000"
+    environment:
+      - PG_HOST=postgresql-database.abcdefgji.eu-west-2.rds.amazonaws.com
+      - PG_PORT=5432
+      - PG_USER=root
+      - PG_PASSWORD=${PGPASSWORD}
+      - PG_DB=postgresql_database
+      - MONITOR_MODE=postgresql
