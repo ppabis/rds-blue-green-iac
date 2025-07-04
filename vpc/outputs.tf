@@ -40,3 +40,8 @@ output "secret_name" {
   description = "Name of the RDS root password secret"
   value       = aws_secretsmanager_secret.root_password.name
 }
+
+output "instance_public_dns" {
+  description = "Public DNS of the EC2 instance"
+  value       = aws_instance.experiment_instance.public_dns
+}
